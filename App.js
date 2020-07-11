@@ -6,9 +6,14 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  Dimensions,
 } from 'react-native';
+import _ from "lodash";
 
 import ImagePicker from 'react-native-image-picker';
+
+const windowWidth = Dimensions.get('window').width;
+const IMAGES_PER_ROW = 3;
 
 const options = {
   title: 'Select Avatar',
@@ -18,16 +23,26 @@ const options = {
   },
 };
 
-
-
 class App extends React.Component {
 
   constructor(props) {
     super(props);
 
     this.state = {
-      images: [],
+      images: [
+        {uri: "https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg"},
+        {uri: "https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg"},
+        {uri: "https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg"},
+        {uri: "https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg"},
+        {uri: "https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg"},
+        {uri: "https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg"},        
+      ],
     };
+  }
+
+  calculatedSize(){
+    var size = windowWidth / IMAGES_PER_ROW
+    return {width: size-15, height: size-15}
   }
 
   takePicture () {
@@ -54,6 +69,24 @@ class App extends React.Component {
 
   }
 
+  renderRow(images) {
+    return images.map((image,i) =>{
+      return(
+        <Image key={i} style={[styles.item, this.calculatedSize()]} source={image} />
+      );
+    })
+  }
+
+  renderImagesInGroupsOf(images) {
+    return _.chunk(images, IMAGES_PER_ROW).map((image,i) => {
+      return (
+        <View style={styles.row} key={i}>
+          {this.renderRow(image)}
+        </View>
+      )
+    })
+  }
+
   render() {
 
     const { images } = this.state;
@@ -67,7 +100,6 @@ class App extends React.Component {
         }}>
           <ScrollView
             contentInsetAdjustmentBehavior="automatic">
-
             <View>
               
               <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
@@ -87,31 +119,7 @@ class App extends React.Component {
                     fontSize: 25
                   }}>Profile</Text>
 
-                  <View style={{
-                    flex: 1,
-                  }}>
-                    {
-                      images.map((image, index) => {
-                        console.log("=  image  ", image)
-                        return (
-                          <View
-                            key={index}
-                          >
-
-                            <Image
-                              source={image}
-                              resizeMode="contain"
-                              style={{
-                                width: 300,
-                                height: 100
-                              }}
-                            />
-
-                          </View>
-                        )
-                      })
-                    }
-                  </View>
+                  {this.renderImagesInGroupsOf(images)}
                 </View>
             }
 
@@ -123,10 +131,10 @@ class App extends React.Component {
 };
 
 const styles = StyleSheet.create({
-  preview: {
+  row: {
     flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    flexDirection: "row",
+    margin: 10
   },
   capture: {
     flex: 0,
@@ -137,6 +145,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     margin: 20,
   },
+  item: {
+    marginRight: 8
+  }
 });
 
 export default App;
