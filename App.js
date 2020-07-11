@@ -29,14 +29,7 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      images: [
-        {uri: "https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg"},
-        {uri: "https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg"},
-        {uri: "https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg"},
-        {uri: "https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg"},
-        {uri: "https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg"},
-        {uri: "https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg"},        
-      ],
+      images: [],
     };
   }
 
@@ -49,7 +42,6 @@ class App extends React.Component {
 
     let addedImages = this.state.images;
     ImagePicker.showImagePicker(options, (response) => {
-      console.log('Response = ', response);
     
       if (response.didCancel) {
         console.log('User cancelled image picker');
@@ -59,7 +51,7 @@ class App extends React.Component {
         console.log('User tapped custom button: ', response.customButton);
       } else {
         const source = { uri: response.uri };
-        console.log('User tapped response: ', response);
+
         addedImages.push(source);
         this.setState({
           images: addedImages
@@ -69,19 +61,33 @@ class App extends React.Component {
 
   }
 
-  renderRow(images) {
+  removePicture = (index) => {
+    let addedImages = this.state.images;
+    addedImages.splice(index, 1);
+    this.setState({
+      images: addedImages
+    });
+  }
+
+  renderRow(images, removePicture) {
     return images.map((image,i) =>{
       return(
-        <Image key={i} style={[styles.item, this.calculatedSize()]} source={image} />
+        <View key={i}>
+          <TouchableOpacity style={{position: "absolute", zIndex: 9, bottom: 0, right: 8, backgroundColor: "#fff"}} onPress={ () => removePicture(i) }>
+            <Text style={{fontSize: 25, fontWeight: "bold", color: "red"}}>X</Text>
+          </TouchableOpacity>
+        
+          <Image style={[styles.item, this.calculatedSize()]} source={{uri: image.uri}} />
+        </View>
       );
     })
   }
 
-  renderImagesInGroupsOf(images) {
+  renderImagesInGroupsOf(images, removePicture) {
     return _.chunk(images, IMAGES_PER_ROW).map((image,i) => {
       return (
         <View style={styles.row} key={i}>
-          {this.renderRow(image)}
+          {this.renderRow(image, removePicture)}
         </View>
       )
     })
@@ -119,7 +125,7 @@ class App extends React.Component {
                     fontSize: 25
                   }}>Profile</Text>
 
-                  {this.renderImagesInGroupsOf(images)}
+                  {this.renderImagesInGroupsOf(images, this.removePicture)}
                 </View>
             }
 
