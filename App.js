@@ -31,7 +31,7 @@ class App extends React.Component {
     };
   }
 
-  takePicture = () => {
+  takePicture () {
 
     let addedImages = this.state.images;
     ImagePicker.showImagePicker(options, (response) => {
@@ -45,6 +45,7 @@ class App extends React.Component {
         console.log('User tapped custom button: ', response.customButton);
       } else {
         const source = { uri: response.uri };
+        console.log('User tapped response: ', response);
         addedImages.push(source);
         this.setState({
           images: addedImages
