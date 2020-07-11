@@ -8,7 +8,18 @@ import {
   Image,
 } from 'react-native';
 
-import { RNCamera } from 'react-native-camera';
+import ImagePicker from 'react-native-image-picker';
+
+const options = {
+  title: 'Select Avatar',
+  customButtons: [{ name: 'fb', title: 'Choose Photo from Facebook' }],
+  storageOptions: {
+    skipBackup: true,
+    path: 'images',
+  },
+};
+
+
 
 class App extends React.Component {
 
@@ -20,21 +31,28 @@ class App extends React.Component {
     };
   }
 
-  takePicture = async function () {
+  takePicture = () => {
 
-    let images = this.state.images;
-    console.log(this.camera, " camera ")
-    const options = { quality: 0.5, base64: true };
-    const data = await this.camera.takePictureAsync(options);
-    //  eslint-disable-next-line
-    images.push("https://media.wired.com/photos/5e6c06e613205e0008da2461/4:3/w_2131,h_1598,c_limit/Biz-billgates-950211062.jpg");
-    this.setState({
-      images
-    }, () => {
-      console.log(data, images);
+    let addedImages = this.state.images;
+    ImagePicker.showImagePicker(options, (response) => {
+      console.log('Response = ', response);
+    
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+      } else {
+        const source = { uri: response.uri };
+        addedImages.push(source);
+        this.setState({
+          images: addedImages
+        });
+      }
     });
 
-  };
+  }
 
   render() {
 
@@ -51,16 +69,7 @@ class App extends React.Component {
             contentInsetAdjustmentBehavior="automatic">
 
             <View>
-              <RNCamera
-                ref={(ref) => {
-                  this.camera = ref;
-                }}
-                style={styles.preview}
-                type={RNCamera.Constants.Type.back}
-                flashMode={RNCamera.Constants.FlashMode.on}
-                captureAudio={false}
-                galle
-              />
+              
               <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
                 <TouchableOpacity onPress={this.takePicture.bind(this)} style={styles.capture}>
                   <Text style={{ fontSize: 25 }}> Add photo </Text>
@@ -90,7 +99,7 @@ class App extends React.Component {
                           >
 
                             <Image
-                              source={{ uri: image }}
+                              source={image}
                               resizeMode="contain"
                               style={{
                                 width: 300,
